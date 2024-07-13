@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 export default function Home() {
   return (
     <div>
-      <Button size="lg" variant="destructive">Hello Lingo!</Button>
+      <Button size="lg" >Hello Lingo!</Button>
     </div>
   );
 }
