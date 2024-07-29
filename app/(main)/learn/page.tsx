@@ -12,16 +12,15 @@ import { redirect } from 'next/navigation';
 import Unit from './unit';
 
 const LearnPage = async () => {
-  const userProgressData = getUserProgress();
   const unitsData = getUnits();
+  const userProgressData = getUserProgress();
   const courseProgressData = getCourseProgress();
-
   const lessonPercentageData = getLessonPercentage();
 
-  const [userProgress, units, courseProgress, lessonPercentage] =
+  const [units, userProgress, courseProgress, lessonPercentage] =
     await Promise.all([
-      userProgressData,
       unitsData,
+      userProgressData,
       courseProgressData,
       lessonPercentageData,
     ]);

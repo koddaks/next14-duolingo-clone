@@ -5,6 +5,7 @@ import Quiz from './quiz';
 const LessonPage = async () => {
   const lessonData = getLesson();
   const userProgressData = getUserProgress();
+  
 
   const [lesson, userProgress] = await Promise.all([
     lessonData,
