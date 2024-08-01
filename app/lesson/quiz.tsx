@@ -1,7 +1,7 @@
 'use client';
 
 import { challengeOptions, challenges } from '@/db/schema';
-import { useState, useTransition } from 'react';
+import { use, useState, useTransition } from 'react';
 import Header from './header';
 import { QuestionBubble } from './question-bubble';
 import { Challenge } from './challenge';
@@ -9,11 +9,13 @@ import { Footer } from './footer';
 import { upsertChallengeProgress } from '@/actions/challenge-progress';
 import { toast } from 'sonner';
 import { reduceHearts } from '@/actions/user-progress';
-import { useAudio, useWindowSize } from 'react-use';
+import { useAudio, useWindowSize, useMount } from 'react-use';
 import Image from 'next/image';
 import Confetti from 'react-confetti';
 import { ResultCard } from './result-card';
 import { useRouter } from 'next/navigation';
+import { useHeartsModal } from '@/store/use-hearts-modal';
+import { usePracticeModal } from '@/store/use-practice-modal';
 
 type QuizProps = {
   initialPercentage: number;
@@ -33,6 +35,16 @@ const Quiz = ({
   initialLessonChallenges,
   userSubscription,
 }: QuizProps) => {
+  const { open: openHeartsModal } = useHeartsModal();
+  const { open: openPracticeModal } = usePracticeModal();
+
+  useMount(() => {
+    if (initialPercentage === 100) {
+      openPracticeModal();
+    }
+  });
+
+
   const {width, height} = useWindowSize();
   const router = useRouter();
 
@@ -45,7 +57,9 @@ const Quiz = ({
 
   const [lessonId] = useState(initialLessonId);
   const [hearts, setHearts] = useState(initialHearts);
-  const [percentage, setPercentage] = useState(initialPercentage);
+  const [percentage, setPercentage] = useState(() => {
+    return initialPercentage === 100 ? 0 : initialPercentage;
+  });
   const [challenges] = useState(initialLessonChallenges);
   const [activeIndex, setActiveIndex] = useState(() => {
     const uncompletedIndex = challenges.findIndex(
@@ -71,7 +85,7 @@ const Quiz = ({
   };
 
   const onContinue = () => {
-    if (!selectedOption) return;
+    if (pending || !selectedOption) return;
 
     if (status === 'wrong') {
       setStatus('none');
@@ -79,9 +93,12 @@ const Quiz = ({
       return;
     }
     if (status === 'correct') {
-      onNext();
-      setStatus('none');
-      setSelectedOption(undefined);
+      startTransition(() => {
+        onNext();
+        setStatus('none');
+        setSelectedOption(undefined);
+      });
+      
       return;
     }
 
@@ -94,11 +111,12 @@ const Quiz = ({
         upsertChallengeProgress(challenge.id)
           .then((response) => {
             if (response?.error) {
-              console.error('Missing hearts');
+              openHeartsModal();
               return;
             }
 
             correctControls.play();
+
             setStatus('correct');
             setPercentage((prev) => prev + 100 / challenges.length);
 
@@ -114,7 +132,7 @@ const Quiz = ({
         reduceHearts(challenge.id)
           .then((response) => {
             if (response?.error === 'hearts') {
-              console.error('Missing hearts');
+              openHeartsModal();
               return;
             }
 
