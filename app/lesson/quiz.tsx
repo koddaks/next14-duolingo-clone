@@ -1,7 +1,7 @@
 'use client';
 
-import { challengeOptions, challenges } from '@/db/schema';
-import { use, useState, useTransition } from 'react';
+import { challengeOptions, challenges ,userSubscription } from '@/db/schema';
+import { useState, useTransition } from 'react';
 import Header from './header';
 import { QuestionBubble } from './question-bubble';
 import { Challenge } from './challenge';
@@ -25,7 +25,9 @@ type QuizProps = {
     completed: boolean;
     challengeOptions: (typeof challengeOptions.$inferSelect)[];
   })[];
-  userSubscription: any; //TODO: Replace with subscription DB type
+  userSubscription: typeof userSubscription.$inferSelect & {
+    isActive: boolean;
+  } | null;
 };
 
 const Quiz = ({

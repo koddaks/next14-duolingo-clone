@@ -5,7 +5,7 @@ import { InfinityIcon } from 'lucide-react';
 import { courses } from '@/db/schema';
 
 type UserProgressProps = {
-  activeCourse: typeof courses.$inferSelect; // TODO: Replace with DB types
+  activeCourse: typeof courses.$inferSelect;
   hearts: number;
   points: number;
   hasActiveSubscription: boolean;
