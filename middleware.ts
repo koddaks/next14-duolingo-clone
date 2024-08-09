@@ -3,7 +3,7 @@ import { authMiddleware } from "@clerk/nextjs/server";
 // export default clerkMiddleware();
 
 export default authMiddleware({
-    publicRoutes: ["/"],
+    publicRoutes: ["/", "/api/webhooks/stripe"],
 });
 
 export const config = {

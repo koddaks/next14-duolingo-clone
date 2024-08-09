@@ -1,15 +1,21 @@
 import { FeedWrapper } from '@/components/feed-wrapper';
 import { StickyWrapper } from '@/components/sticky-wrapper';
 import { UserProgress } from '@/components/user-progress';
-import { getUserProgress } from '@/db/queries';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { Items } from './items';
+import { getUserProgress, getUserSubscription } from '@/db/queries';
 
 const ShopPage = async () => {
   const userProgressData = getUserProgress();
+  const userSubscriptionData = getUserSubscription();
 
-  const [userProgress] = await Promise.all([userProgressData]);
+  const [userProgress, userSubscription] = await Promise.all([
+    userProgressData,
+    userSubscriptionData,
+  ]);
+
+  const isPro = !!userSubscription?.isActive;
 
   if (!userProgress || !userProgress.activeCourse) {
     redirect('/courses');
@@ -22,21 +28,24 @@ const ShopPage = async () => {
           activeCourse={userProgress.activeCourse}
           hearts={userProgress.hearts}
           points={userProgress.points}
-          hasActiveSubscription={false}
+          hasActiveSubscription={isPro}
         />
       </StickyWrapper>
       <FeedWrapper>
         <div className="w-full flex flex-col items-center">
           <Image src="/shop.svg" alt="Shop" width={90} height={90} />
-          <h1 className='text-center font-bold text-neutral-800 text-2xl my-6'>Shop</h1>
-        <p className="text-center text-lg text-muted-foreground mb-6">Spend your points on cool stuff</p>
-        <Items
-        hearts={userProgress.hearts}
-        points={userProgress.points}
-        hasActiveSubscription={false} //TODO: add subscription
-        />
+          <h1 className="text-center font-bold text-neutral-800 text-2xl my-6">
+            Shop
+          </h1>
+          <p className="text-center text-lg text-muted-foreground mb-6">
+            Spend your points on cool stuff
+          </p>
+          <Items
+            hearts={userProgress.hearts}
+            points={userProgress.points}
+            hasActiveSubscription={isPro}
+          />
         </div>
-      
       </FeedWrapper>
     </div>
   );
